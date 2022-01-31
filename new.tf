@@ -1,12 +1,9 @@
-provider "aws" {
-  region = "ap-south-1"
-  shared_credentials_file = "/home/sayone/.aws/key"
-}
+
 resource "aws_instance" "new-server" { 
-  ami  = "ami-0851b76e8b1bce90b"
+  ami  = var.ami
   instance_type = "t2.micro"
-  availability_zone = "ap-south-1b"
-  key_name = "terraform"
+  
+  
 
   network_interface {
     device_index = 0
