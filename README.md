@@ -1,2 +1,6 @@
 # Terraform-instance-creation
-instance craetion using .tf script
+instance creation using .tf script
+
+
+created two files var.tf and terraform.tfvar
+declared secret key and access key on var file and dclared ami value and key value also
