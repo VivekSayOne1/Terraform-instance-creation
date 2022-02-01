@@ -1,9 +1,9 @@
-
 resource "aws_instance" "new-server" { 
   ami  = var.ami
-  instance_type = "t2.micro"
+  instance_type = var.instance_type
+  key_name = var.key_name
   
-  
+   
 
   network_interface {
     device_index = 0
@@ -30,7 +30,7 @@ resource "aws_vpc" "prod-vpc" {
 resource "aws_subnet" "subnet-demo" {
   vpc_id  = aws_vpc.prod-vpc.id
   cidr_block = "10.0.1.0/24"
-   availability_zone = "ap-south-1b"
+   availability_zone = var.availability_zone
 
 
   tags = {
@@ -58,28 +58,16 @@ resource "aws_security_group" "terraform-security-gp" {
    vpc_id = aws_vpc.prod-vpc.id
 
 
-   ingress {
-     description = "ssh"
-     from_port = 22
-     to_port = 22
-     protocol = "tcp"
-     cidr_blocks = ["0.0.0.0/0"]
-}
-
-ingress {
-     description = "http"
-     from_port = 80
-     to_port = 80
-     protocol = "tcp"
-     cidr_blocks = ["0.0.0.0/0"]
-}
-ingress {
-     description = "HTTPS"
-     from_port = 443
-     to_port = 443
-     protocol = "tcp"
-     cidr_blocks = ["0.0.0.0/0"]
-}
+  dynamic "ingress" {
+    for_each = var.sg_ingress_rules
+    content {
+      from_port   = ingress.value.from_port
+      to_port     = ingress.value.to_port
+      protocol    = ingress.value.protocol
+      cidr_blocks = ingress.value.cidr_blocks
+      description = ingress.value.description
+    }
+  }
 egress {
   from_port  = 0
   to_port    = 0
@@ -103,3 +91,4 @@ resource "aws_eip" "tf-eip" {
   associate_with_private_ip = "10.0.1.50"
   depends_on = [aws_internet_gateway.terraform-gw]
 }
+
